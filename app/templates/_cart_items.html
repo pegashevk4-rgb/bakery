@@ -1,0 +1,39 @@
+{% if items %}
+  <ul class="cart-list">
+    {% for item in items %}
+      <li class="cart-row" data-product-id="{{ item.product_id }}">
+        <img
+          class="cart-image"
+          src="{{ url_for('static', filename='img/' ~ item.product.image_filename) }}"
+          alt="{{ item.product.name }}"
+        >
+        <span class="cart-name">{{ item.product.name }}</span>
+        <div class="qty-control">
+          <button type="button" class="qty-btn" data-action="dec">−</button>
+          <input type="number" class="qty-input cart-qty"
+                value="{{ item.quantity }}" min="1" max="99" inputmode="numeric">
+          <button type="button" class="qty-btn" data-action="inc">+</button>
+        </div>
+        <span class="cart-subtotal">{{ "%.2f"|format(item.subtotal) }} €</span>
+        <button type="button" class="cart-remove" title="Удалить" aria-label="Удалить">✕</button>
+      </li>
+
+    {% endfor %}
+  </ul>
+
+  <div class="cart-total">
+    <span>Итого</span>
+    <span class="cart-total-value">{{ "%.2f"|format(total) }} €</span>
+  </div>
+
+  <div class="cart-actions">
+    <a href="{{ url_for('main.index') }}" class="btn btn-ghost">← Продолжить покупки</a>
+    <a href="{{ url_for('orders.checkout') }}" class="btn btn-primary">Оформить заказ</a>
+  </div>
+{% else %}
+  <div class="empty-cart">
+  <p class="empty-state">
+    Корзина пуста. <a href="{{ url_for('main.index') }}">Посмотреть витрину</a>
+  </p>
+</div>
+{% endif %}

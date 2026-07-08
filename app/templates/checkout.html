@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block title %}Оформление заказа — Пекарь&amp;Ки{% endblock %}
+
+{% block content %}
+<section class="wrap checkout-page">
+  <h1>Оформление заказа</h1>
+
+  <div class="checkout-grid">
+    <form method="post" class="checkout-form" novalidate>
+      {{ form.hidden_tag() }}
+
+      <fieldset>
+        <legend>Контактные данные</legend>
+
+        <label for="{{ form.contact_name.id }}">{{ form.contact_name.label.text }}</label>
+        {{ form.contact_name(id=form.contact_name.id, class_="input") }}
+        {% for err in form.contact_name.errors %}<p class="field-error">{{ err }}</p>{% endfor %}
+
+        <label for="{{ form.contact_phone.id }}">{{ form.contact_phone.label.text }}</label>
+        {{ form.contact_phone(id=form.contact_phone.id, class_="input", placeholder="+371 20 000 000") }}
+        {% for err in form.contact_phone.errors %}<p class="field-error">{{ err }}</p>{% endfor %}
+
+        <label for="{{ form.contact_email.id }}">{{ form.contact_email.label.text }}</label>
+        {{ form.contact_email(id=form.contact_email.id, class_="input") }}
+        {% for err in form.contact_email.errors %}<p class="field-error">{{ err }}</p>{% endfor %}
+      </fieldset>
+
+      <fieldset>
+        <legend>Доставка</legend>
+
+        <label for="{{ form.delivery_type.id }}">{{ form.delivery_type.label.text }}</label>
+        {{ form.delivery_type(id=form.delivery_type.id, class_="input", **{"data-delivery-toggle": "1"}) }}
+
+        <div id="address-field">
+          <label for="{{ form.address.id }}">{{ form.address.label.text }}</label>
+          {{ form.address(id=form.address.id, class_="input", rows="3", placeholder="Улица, дом, квартира") }}
+          {% for err in form.address.errors %}<p class="field-error">{{ err }}</p>{% endfor %}
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Оплата</legend>
+        <label for="{{ form.payment_method.id }}">{{ form.payment_method.label.text }}</label>
+        {{ form.payment_method(id=form.payment_method.id, class_="input") }}
+      </fieldset>
+
+      <button type="submit" class="btn btn-primary btn-wide">Подтвердить заказ на {{ "%.2f"|format(total) }} €</button>
+    </form>
+
+    <aside class="order-summary">
+      <h2>Ваш заказ</h2>
+      <ul class="summary-list">
+        {% for item in items %}
+          <li>
+            <span>{{ item.quantity }}× {{ item.product.name }}</span>
+            <span>{{ "%.2f"|format(item.subtotal) }} €</span>
+          </li>
+        {% endfor %}
+      </ul>
+      <div class="summary-total">
+        <span>Итого</span>
+        <span>{{ "%.2f"|format(total) }} €</span>
+      </div>
+    </aside>
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // Показываем поле адреса только при выборе доставки
+  const deliverySelect = document.querySelector('[data-delivery-toggle]');
+  const addressField = document.getElementById('address-field');
+  function syncAddressVisibility() {
+    addressField.style.display = deliverySelect.value === 'delivery' ? 'block' : 'none';
+  }
+  deliverySelect.addEventListener('change', syncAddressVisibility);
+  syncAddressVisibility();
+</script>
+{% endblock %}

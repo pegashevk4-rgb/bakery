@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}Заказ №{{ order.id }} принят{% endblock %}
+
+{% block content %}
+<section class="wrap success-page">
+
+  {# БЛОК КНОПОК СВЕРХУ, СЛЕВА #}
+  <div class="success-actions success-actions-top">
+    <a href="{{ url_for('main.index') }}" class="btn btn-ghost">← Вернуться на витрину</a>
+    {% if current_user.is_authenticated %}
+      <a href="{{ url_for('auth.profile') }}" class="btn btn-primary">Мои заказы</a>
+    {% endif %}
+  </div>
+
+  <h1 class="success-title">✓ Заказ принят</h1>
+  <p class="success-sub">Мы уже передали его на кухню. Чек ниже — для ваших записей.</p>
+
+  {# ОБЁРТКА ДЛЯ ВЫРАВНИВАНИЯ ЧЕКА ПО ЦЕНТРУ #}
+  <div class="receipt-wrapper">
+    <div class="receipt">
+      <div class="receipt-head">
+        <div class="receipt-logo">🥖 ПЕКАРЬ&amp;Ки</div>
+        <div class="receipt-meta">Заказ №{{ "%05d"|format(order.id) }}</div>
+        <div class="receipt-meta">{{ order.created_at.strftime('%d.%m.%Y %H:%M') }}</div>
+      </div>
+
+      <div class="receipt-divider"></div>
+
+      <div class="receipt-lines">
+        {% for item in order.items %}
+          <div class="receipt-line">
+            <span>{{ item.quantity }}× {{ item.product_name }}</span>
+            <span>{{ "%.2f"|format(item.subtotal) }} €</span>
+          </div>
+        {% endfor %}
+      </div>
+
+      <div class="receipt-divider"></div>
+
+      <div class="receipt-line receipt-total">
+        <span>ИТОГО</span>
+        <span>{{ "%.2f"|format(order.total) }} €</span>
+      </div>
+
+      <div class="receipt-divider"></div>
+
+      <div class="receipt-meta-block">
+        <div class="receipt-line"><span>Получатель</span><span>{{ order.contact_name }}</span></div>
+        <div class="receipt-line"><span>Телефон</span><span>{{ order.contact_phone }}</span></div>
+        <div class="receipt-line">
+          <span>Получение</span>
+          <span>{{ "Доставка" if order.delivery_type == "delivery" else "Самовывоз" }}</span>
+        </div>
+        {% if order.address %}
+          <div class="receipt-line"><span>Адрес</span><span>{{ order.address }}</span></div>
+        {% endif %}
+        <div class="receipt-line">
+          <span>Оплата</span>
+          <span>
+            {% if order.payment_method == "cash" %}Наличными
+            {% elif order.payment_method == "card" %}Картой при получении
+            {% else %}Онлайн (демо){% endif %}
+          </span>
+        </div>
+        <div class="receipt-line"><span>Статус</span><span>Новый</span></div>
+      </div>
+    </div>
+  </div>
+
+</section>
+{% endblock %}

@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}Витрина — Пекарь&amp;Ки{% endblock %}
+
+{% block content %}
+<section class="hero wrap">
+  <div class="hero-text">
+    <p class="hero-eyebrow">Каждое утро, с 6:00</p>
+    <h1>Тёплый хлеб, хрустящие круассаны,<br>кофе на вынос.</h1>
+    <p class="hero-sub">Выпекаем небольшими партиями и продаём, пока горячо. Соберите заказ ниже — самовывоз или доставка.</p>
+  </div>
+  <div class="hero-stamp" aria-hidden="true">
+    <div class="stamp-circle">
+      <span>СВЕЖЕ<br>ВЫПЕЧКА</span>
+    </div>
+  </div>
+</section>
+
+<section class="wrap filters-bar" id="filters">
+  <div class="filter-group" role="group" aria-label="Фильтр по категории">
+    <button class="filter-chip {{ 'is-active' if not active_category else '' }}" data-category="">Все</button>
+    {% for cat in categories %}
+      <button class="filter-chip {{ 'is-active' if active_category == cat else '' }}" data-category="{{ cat }}">{{ cat }}</button>
+    {% endfor %}
+  </div>
+
+  <div class="filter-price">
+    <label for="max-price">Цена до</label>
+    <input type="range" id="max-price" min="1" max="5" step="0.1" value="{{ active_max_price or 5 }}">
+    <output id="max-price-value">{{ active_max_price or 5 }} €</output>
+  </div>
+</section>
+
+<section class="wrap product-grid" id="product-grid">
+  {% for p in products %}
+    <article class="product-card" data-category="{{ p.category }}" data-price="{{ p.price }}">
+
+      {# Картинка товара #}
+      {% if p.image_filename %}
+      <div class="product-image">
+        <img
+          src="{{ url_for('static', filename='img/' ~ p.image_filename) }}"
+          alt="{{ p.name }}"
+          loading="lazy"
+        >
+      </div>
+      {% endif %}
+
+      {# Эмодзи можно оставить как fallback или скрыть через CSS #}
+      <div class="product-emoji" aria-hidden="true">{{ p.emoji }}</div>
+
+      <div class="product-body">
+        <h3>{{ p.name }}</h3>
+        <p class="product-desc">{{ p.description }}</p>
+      </div>
+      <div class="product-footer">
+        <span class="price-tag">{{ "%.2f"|format(p.price) }} €</span>
+        <div class="qty-control">
+          <button type="button" class="qty-btn" data-action="dec">−</button>
+          <input type="number" class="qty-input" value="1" min="1" max="99" inputmode="numeric">
+          <button type="button" class="qty-btn" data-action="inc">+</button>
+        </div>
+        <button type="button" class="btn btn-primary add-to-cart" data-product-id="{{ p.id }}">
+          В корзину
+        </button>
+      </div>
+    </article>
+  {% else %}
+    <p class="empty-state">Товаров по этому фильтру не нашлось.</p>
+  {% endfor %}
+</section>
+
+{% endblock %}

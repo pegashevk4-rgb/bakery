@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Вход — Пекарь&amp;Ки{% endblock %}
+
+{% block content %}
+<section class="wrap auth-page">
+  <form method="post" class="auth-form" novalidate>
+    {{ form.hidden_tag() }}
+    <h1>Вход в аккаунт</h1>
+
+    <label for="{{ form.email.id }}">{{ form.email.label.text }}</label>
+    {{ form.email(id=form.email.id, class_="input", autocomplete="email") }}
+    {% for err in form.email.errors %}<p class="field-error">{{ err }}</p>{% endfor %}
+
+    <label for="{{ form.password.id }}">{{ form.password.label.text }}</label>
+    {{ form.password(id=form.password.id, class_="input", autocomplete="current-password") }}
+    {% for err in form.password.errors %}<p class="field-error">{{ err }}</p>{% endfor %}
+
+    <button type="submit" class="btn btn-primary btn-wide">Войти</button>
+
+    <p class="auth-switch">Нет аккаунта? <a href="{{ url_for('auth.register') }}">Зарегистрироваться</a></p>
+  </form>
+</section>
+{% endblock %}
