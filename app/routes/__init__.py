@@ -1,12 +1,20 @@
+import os
 from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
-
-db = SQLAlchemy()
+from app.extensions import db 
 
 def create_app():
-    app = Flask(__name__, instance_path='/tmp/instance')  # Vercel позволяет писать во /tmp
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite3'
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    app = Flask(__name__)
+
+    # базовые настройки, чтобы не было KeyError на DEBUG
+    app.config.setdefault("DEBUG", False)
+
+    # БД из переменной окружения (в Vercel настрой Environment Variable DATABASE_URL)
+    app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv(
+        "DATABASE_URL",
+        # если хочешь временно без внешней БД — можно так, но это будет неpersistent:
+        # "sqlite:////tmp/bakery.db"
+    )
+    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
     db.init_app(app)
 
