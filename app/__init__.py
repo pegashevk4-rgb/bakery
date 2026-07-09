@@ -12,18 +12,16 @@ csrf = CSRFProtect()
 def create_app():
     app = Flask(__name__)
 
-    # Базовые настройки
+    # Базовые настройки напрямую из окружения
     app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "dev-secret-key-change-me")
     app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get(
         "DATABASE_URL",
-        "sqlite:///bakery_new.db",  # или твой путь к SQLite
+        "sqlite:///:memory:"  # вообще БЕЗ файлов, чисто in-memory
     )
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-    app.config.setdefault("DEBUG", False)
-
-    # КРИТИЧЕСКОЕ: значения для сидера
     app.config["ADMIN_EMAIL"] = os.environ.get("ADMIN_EMAIL", "admin@bakery-demo.com")
     app.config["ADMIN_PASSWORD"] = os.environ.get("ADMIN_PASSWORD", "admin12345")
+    app.config.setdefault("DEBUG", False)
 
     db.init_app(app)
     login_manager.init_app(app)
