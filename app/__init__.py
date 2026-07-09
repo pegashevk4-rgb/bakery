@@ -12,16 +12,14 @@ csrf = CSRFProtect()
 def create_app():
     app = Flask(__name__)
 
-    # Базовый конфиг (SECRET_KEY и т.п.) из Config, НО БД переопределим безопасно.
-    from config import Config
-    app.config.from_object(Config)
+    # БЕЗ Config, чтобы ничего не подтягивало старые настройки БД.
+    # Если нужны другие параметры из Config (SECRET_KEY и т.п.), их можно задать вручную.
 
-    # На Vercel нельзя писать в app.instance_path; используем DATABASE_URL или in-memory SQLite.
-    app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv(
-        "DATABASE_URL",
-        "sqlite:///:memory:"  # временный вариант, чтобы не трогать файловую систему
-    )
-    app.config.setdefault("SQLALCHEMY_TRACK_MODIFICATIONS", False)
+    app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "dev-secret-key-change-me")
+
+    # КРИТИЧЕСКОЕ МЕСТО: чистый in-memory SQLite, без файловой системы.
+    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///:memory:"
+    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     app.config.setdefault("DEBUG", False)
 
     db.init_app(app)
@@ -62,8 +60,6 @@ def create_app():
         return {"cart_count": count}
 
     with app.app_context():
-        # ВАЖНО: create_all с in-memory SQLite будет создаваться на каждый вызов,
-        # но это лучше, чем падать на read-only FS; потом можно перейти на внешний DB.
         db.create_all()
         from app.seed import seed_if_empty
         seed_if_empty(app)
