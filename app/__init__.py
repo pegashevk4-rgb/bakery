@@ -1,17 +1,28 @@
+import os
 import uuid
 
 from flask import Flask, session
 from flask_wtf import CSRFProtect
 
-from config import Config
 from app.extensions import db, login_manager
 
 csrf = CSRFProtect()
 
 
-def create_app(config_class=Config):
+def create_app():
     app = Flask(__name__)
-    app.config.from_object(config_class)
+
+    # Базовый конфиг (SECRET_KEY и т.п.) из Config, НО БД переопределим безопасно.
+    from config import Config
+    app.config.from_object(Config)
+
+    # На Vercel нельзя писать в app.instance_path; используем DATABASE_URL или in-memory SQLite.
+    app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv(
+        "DATABASE_URL",
+        "sqlite:///:memory:"  # временный вариант, чтобы не трогать файловую систему
+    )
+    app.config.setdefault("SQLALCHEMY_TRACK_MODIFICATIONS", False)
+    app.config.setdefault("DEBUG", False)
 
     db.init_app(app)
     login_manager.init_app(app)
@@ -26,8 +37,6 @@ def create_app(config_class=Config):
         except (ValueError, TypeError):
             return None
 
-    # Гостям выдаём стабильный session_id, чтобы у них была своя корзина
-    # до момента регистрации/входа в аккаунт.
     @app.before_request
     def ensure_guest_session_id():
         session.permanent = True
@@ -53,9 +62,10 @@ def create_app(config_class=Config):
         return {"cart_count": count}
 
     with app.app_context():
+        # ВАЖНО: create_all с in-memory SQLite будет создаваться на каждый вызов,
+        # но это лучше, чем падать на read-only FS; потом можно перейти на внешний DB.
         db.create_all()
         from app.seed import seed_if_empty
-
         seed_if_empty(app)
 
     return app
