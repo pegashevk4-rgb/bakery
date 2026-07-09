@@ -22,6 +22,7 @@ def admin_required(view):
 
 
 @orders_bp.route("/checkout", methods=["GET", "POST"])
+@login_required
 def checkout():
     items, total, count = cart_summary()
     if not items:

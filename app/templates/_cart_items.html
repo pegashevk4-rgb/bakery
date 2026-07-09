@@ -28,7 +28,11 @@
 
   <div class="cart-actions">
     <a href="{{ url_for('main.index') }}" class="btn btn-ghost">← Продолжить покупки</a>
-    <a href="{{ url_for('orders.checkout') }}" class="btn btn-primary">Оформить заказ</a>
+    {% if current_user.is_authenticated %}
+      <a href="{{ url_for('orders.checkout') }}" class="btn btn-primary">Оформить заказ</a>
+    {% else %}
+      <button type="button" class="btn btn-primary" id="checkout-guest-btn">Оформить заказ</button>
+    {% endif %}
   </div>
 {% else %}
   <div class="empty-cart">

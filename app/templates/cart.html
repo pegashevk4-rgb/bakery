@@ -8,9 +8,42 @@
   <div id="cart-container">
     {% include "_cart_items.html" %}
   </div>
+
+  {% if not current_user.is_authenticated %}
+  <div class="auth-modal-overlay" id="auth-modal" hidden>
+    <div class="auth-modal">
+      <p>Чтобы оформить заказ, нужно войти или зарегистрироваться.</p>
+      <div class="auth-modal-actions">
+        <a href="{{ url_for('auth.login', next=url_for('orders.checkout')) }}" class="btn btn-primary">Войти</a>
+        <a href="{{ url_for('auth.register', next=url_for('orders.checkout')) }}" class="btn btn-ghost">Зарегистрироваться</a>
+      </div>
+      <button type="button" class="auth-modal-close" id="auth-modal-close" aria-label="Закрыть">✕</button>
+    </div>
+  </div>
+  {% endif %}
 </section>
 {% endblock %}
 
 {% block scripts %}
 <script src="{{ url_for('static', filename='js/cart.js') }}"></script>
+{% if not current_user.is_authenticated %}
+<script>
+(function () {
+  var btn = document.getElementById('checkout-guest-btn');
+  var modal = document.getElementById('auth-modal');
+  var close = document.getElementById('auth-modal-close');
+  if (btn && modal) {
+    btn.addEventListener('click', function () { modal.hidden = false; });
+  }
+  if (close && modal) {
+    close.addEventListener('click', function () { modal.hidden = true; });
+  }
+  if (modal) {
+    modal.addEventListener('click', function (e) {
+      if (e.target === modal) modal.hidden = true;
+    });
+  }
+})();
+</script>
+{% endif %}
 {% endblock %}

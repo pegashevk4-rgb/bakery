@@ -3,7 +3,8 @@
 
 {% block content %}
 <section class="wrap auth-page">
-  <form method="post" class="auth-form" novalidate>
+  <form method="post" class="auth-form" novalidate
+        action="{{ url_for('auth.login', next=request.args.get('next', '')) }}">
     {{ form.hidden_tag() }}
     <h1>Вход в аккаунт</h1>
 
@@ -17,7 +18,7 @@
 
     <button type="submit" class="btn btn-primary btn-wide">Войти</button>
 
-    <p class="auth-switch">Нет аккаунта? <a href="{{ url_for('auth.register') }}">Зарегистрироваться</a></p>
+    <p class="auth-switch">Нет аккаунта? <a href="{{ url_for('auth.register', next=request.args.get('next', '')) }}">Зарегистрироваться</a></p>
   </form>
 </section>
 {% endblock %}

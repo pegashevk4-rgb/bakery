@@ -51,7 +51,8 @@ def register():
             merge_guest_cart_into_user(user)
             login_user(user)
             flash("Регистрация успешна! Добро пожаловать.", "success")
-            return redirect(url_for("main.index"))
+            next_url = request.args.get("next")
+            return redirect(next_url or url_for("main.index"))
 
     return render_template("register.html", form=form)
 
